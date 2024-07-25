@@ -50,8 +50,7 @@ async function getCategories () {
     if (!requete.ok){
         alert('Un problème est survenu sur la récupération des catégories.')
     } else {
-        displayCategory();
-        
+        displayCategory();    
     }
 }
 
@@ -111,8 +110,11 @@ function displayWorks (donneesWorks) {
     }
 }
 
-// Partie displayCategory : Afficher les différentes catégories
+// Partie displayCategory : Afficher les différentes catégories + vérification du token
 
+// 1 : Créer une fonction displayCategory asynchrone
+// 2 : Récupérer le token
+// 3 : Réaliser une condition qui si il y a un token on appelle la fonction displayWorks pour afficher les travaux sinon on affiche la barre des catégories + les travaux
 // 1 : Faire un querySelector de l'id projets pour pouvoir réaliser un appendchild dessus
 // 2 : Création d'une liste avec chaque catégories
 // 3 : Créer une div qui acceuillera l'ensemble des catégories
@@ -121,32 +123,44 @@ function displayWorks (donneesWorks) {
 // 6 : Réaliser une boucle for pour chaque élément de la liste ainsi que leur design
 // 7 : Inserer chaqu'une des catégories à l'intérieur de la div créer
 
-function displayCategory () {
-    let projets = document.querySelector('#projets');
-    let listeCategories = ['Tous', 'Objets', 'Appartements', 'Hotels & restaurants'];
-    let divCategories = document.createElement('div');
-    projets.insertAdjacentElement('afterend', divCategories);
-    divCategories.style.display = 'flex';
-    divCategories.style.justifyContent = 'center';
-    divCategories.style.gap = '15px';
+async function displayCategory () {
 
-    for ( let i = 0; i < listeCategories.length; i++){
-        let category = document.createElement('button');
-        category.textContent = listeCategories[i];
-        category.className = 'category_project'
-        category.id = listeCategories[i].substring(0, 6);
-        category.style.fontSize = '16px';
-        category.style.fontWeight = '700';
-        category.style.fontFamily = 'Syne';
-        category.style.backgroundColor = 'white';
-        category.style.color = '#1D6154';
-        category.style.border = 'solid 1px #1D6154';
-        category.style.borderRadius = '60px';
-        category.style.padding = '10px 20px 10px 20px';
-        category.style.marginBottom = '50px';
-        divCategories.appendChild(category);
-    }
-    categoriesEventListener();
+    const token = sessionStorage.getItem('token');
+    
+    if (token !== null) {
+        const donneesWorks = await getWorks();
+       displayWorks(donneesWorks); 
+    } else {
+
+        let projets = document.querySelector('#projets');
+        let listeCategories = ['Tous', 'Objets', 'Appartements', 'Hotels & restaurants'];
+        let divCategories = document.createElement('div');
+        projets.insertAdjacentElement('afterend', divCategories);
+        divCategories.style.display = 'flex';
+        divCategories.style.justifyContent = 'center';
+        divCategories.style.gap = '15px';
+    
+        for ( let i = 0; i < listeCategories.length; i++){
+            let category = document.createElement('button');
+            category.textContent = listeCategories[i];
+            category.className = 'category_project'
+            category.id = listeCategories[i].substring(0, 6);
+            category.style.fontSize = '16px';
+            category.style.fontWeight = '700';
+            category.style.fontFamily = 'Syne';
+            category.style.backgroundColor = 'white';
+            category.style.color = '#1D6154';
+            category.style.border = 'solid 1px #1D6154';
+            category.style.borderRadius = '60px';
+            category.style.padding = '10px 20px 10px 20px';
+            category.style.marginBottom = '50px';
+            divCategories.appendChild(category);
+        }
+        categoriesEventListener();
+
+   }
+
+
 }
 
 // Partie displayCategorySelect : Modification de la partie visuel en fonction de la catégorie choisi
@@ -191,6 +205,113 @@ function displayCategorySelect (categorySelect) {
         default :
             alert('Une erreur est survenue sur la selection d\'une catégories, merci de recharger la page.');
     }
+}
+
+// Partie modification du Dom une fois connectée
+
+// Partie displayLogin : Permet d'appeler toutes les fonction quand un utilisateur est connecter à son compte
+document.addEventListener('DOMContentLoaded', () => {
+    const token = sessionStorage.getItem('token');
+    if (token) {
+        displayLogin();
+    }
+})
+
+// 1 : Appeler les fonction editModeBar, modifyWork
+
+function displayLogin () {
+    editModeBar();
+    displayLogout();
+    displayModifyWork();
+}
+
+// Partie editModeBar : Permet d'afficher la barre mode edition sur le haut de la page
+
+// 1 : Faire un querySelector du header
+// 2 : Créer une div 
+// 3 : Inserer à l'intérieur le logo édition et le texte
+// 4 : Donner du style au élément pour ressembler à la maquette
+// 5 : Inserer l'élément créé
+
+function editModeBar () {
+    let header = document.querySelector('#index_header');
+    let divModeBar = document.createElement('div');
+    let divImgP = document.createElement('div');
+    let iconSVG = document.createElement('img');
+    let editionP = document.createElement('p');
+
+    divModeBar.style.width = '100vw';
+    divModeBar.style.height = '59px';
+    divModeBar.style.backgroundColor = '#000000';
+    divModeBar.style.position = 'absolute';
+    divModeBar.style.left = '0';
+    divModeBar.style.top = '0';
+
+    divImgP.style.display = 'flex';
+    divImgP.style.gap = '21px'
+    divImgP.style.justifyContent = 'center';
+    divImgP.style.marginTop = '20px';
+
+    header.style.marginTop = '96px';
+    let parent = header.parentNode;
+    parent.insertBefore(divModeBar, header)
+
+    iconSVG.src = './assets/icons/Vector.svg';
+    iconSVG.alt = 'Icon mode édition';
+    iconSVG.style.width = '16px';
+    iconSVG.style.height = '16px';
+
+    editionP.textContent = 'Mode édition';
+    editionP.style.color = 'white';
+    editionP.style.fontSize = '16px';
+    editionP.style.fontWeight = '400';
+    editionP.style.fontFamily = 'Work Sans';
+
+    divModeBar.appendChild(divImgP);
+    divImgP.appendChild(iconSVG);
+    divImgP.appendChild(editionP);
+
+}
+
+function displayLogout () {
+    logStatus = document.querySelector('#log_status');
+    logStatus.textContent = '';
+    logStatus.textContent = 'logout';
+}
+
+function displayModifyWork () {
+    let div = document.querySelector('#display_modify_work');
+    let myProject = document.querySelector('#projets');
+    let divImgP = document.createElement('div');
+    let iconSVG = document.createElement('img');
+    let modify = document.createElement('p');
+
+    div.style.display = 'flex';
+    div.style.justifyContent = 'center';
+    div.style.alignItems = 'center';
+    div.style.gap = '31px';
+    div.style.marginTop = '139px';
+    div.style.marginBottom = '92px';
+
+    myProject.style.margin = '0px'
+
+    divImgP.style.display = 'flex';
+    divImgP.style.gap = '10px';
+
+    iconSVG.src = './assets/icons/Group.svg';
+    iconSVG.alt = 'Icon mode édition';
+    iconSVG.style.width = '16px';
+    iconSVG.style.height = '16px';
+
+    modify.textContent = 'modifier';
+    modify.style.color = '#000000';
+    modify.style.fontSize = '14px';
+    modify.style.fontWeight = '400';
+    modify.style.fontFamily = 'Work Sans';
+
+    div.appendChild(divImgP);
+    divImgP.appendChild(iconSVG);
+    divImgP.appendChild(modify);
 }
 
 //Fin de la partie sur la modification visuel du DOM
@@ -385,10 +506,12 @@ function incorrectPassword () {
 
 // requeteOkTrue : Status 200
 
+// 1 : Redirige vers la page index.html 
+// 2 : Stock pour la session le userId et le token pour assurer que nous sommes bien connecter
 function requeteOkTrue (reponse) {
-    userId = reponse.userId
-    token = reponse.token;
-    window.location.href = 'http://127.0.0.1:5500/FrontEnd/index.html'
+    window.location.href = 'http://127.0.0.1:5500/FrontEnd/index.html';
+    sessionStorage.setItem('userId', reponse.userId);
+    sessionStorage.setItem('token', reponse.token);
 }
 
 
